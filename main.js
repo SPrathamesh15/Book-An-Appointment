@@ -1,9 +1,36 @@
 var form = document.getElementById('addForm')
 var itemList = document.getElementById('items')
+// set event
 form.addEventListener('submit', setItem)
+// Add event
 form.addEventListener('submit', addItem)
 // delete event
 itemList.addEventListener('click', removeItem);
+// edit event
+itemList.addEventListener('click', editItem);
+
+function editItem(e) {
+    if (e.target.classList.contains('edit')) {
+        var li = e.target.parentElement;
+        var email = document.getElementById('email').value;
+        var userData = JSON.parse(localStorage.getItem(email));
+
+        if (userData) {
+            // Populate the form fields with existing data
+            document.getElementById('item').value = userData.firstName;
+            document.getElementById('description').value = userData.lastName;
+            document.getElementById('email').value = userData.email;
+            document.getElementById('phone').value = userData.phone;
+
+            // Remove the existing user data from local storage
+            localStorage.removeItem(email);
+
+            // Remove the corresponding list item
+            itemList.removeChild(li);
+        }
+    }
+}
+
 
 
 // Remove item
@@ -40,6 +67,13 @@ function addItem(e){
     deleteBtn.className = 'btn btn-danger btn-sm float-right delete';
     // Append text node
     deleteBtn.appendChild(document.createTextNode('X'));
+    // create edit btn
+    var editBtn = document.createElement('button');
+    // add class to edit btn
+    editBtn.className = 'btn btn-primary btn-sm float-right edit'
+    // Append text node
+    editBtn.appendChild(document.createTextNode('Edit'))
+    
     // create a new li element
     var li = document.createElement('li');
     // Add class
@@ -58,6 +92,8 @@ function addItem(e){
     itemList.appendChild(li);
     // Append btn to li
     li.appendChild(deleteBtn);
+    // append btn to li
+    li.appendChild(editBtn)
 }
 
 //creating function to add the items to localstorage
