@@ -122,7 +122,6 @@ function handlePageLoad() {
 }
 
 function showNewUserOnScreen(user) {
-    console.log(user);
     var li = document.createElement('li');
     li.className = 'list-group-item';
 
@@ -151,7 +150,7 @@ function showNewUserOnScreen(user) {
     itemList.appendChild(li);
     // localStorage.setItem(email, JSON.stringify(userDetails));
 
-    console.log('User details retrieved from crud crud!!');
+    console.log('User details retrieved from crud crud!!', user);
     
 }
 
