@@ -21,7 +21,6 @@ function removeItem(e) {
 function editItem(e) {
     if (e.target.classList.contains('editbutton')) {
         var li = e.target.parentElement;
-        var email = document.getElementById('email').value;
         var userData = JSON.parse(localStorage.getItem(email));
 
         if (userData) {
@@ -32,7 +31,7 @@ function editItem(e) {
             document.getElementById('phone').value = userData.phone;
 
             // Remove the existing user data from local storage
-            localStorage.removeItem(email);
+            // localStorage.removeItem(email);
 
             // Remove the corresponding list item
             itemList.removeChild(li);
@@ -69,7 +68,6 @@ function handleFormSubmission(e) {
     var deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn btn-danger btn-sm float-right delete';
     deleteBtn.appendChild(document.createTextNode('X'));
-
     var editBtn = document.createElement('button'); // Create an edit button
     editBtn.className = 'editbutton';
     editBtn.appendChild(document.createTextNode('Edit'));
@@ -86,7 +84,7 @@ function handleFormSubmission(e) {
         phone: phone
     };
     
-    axios.post("https://crudcrud.com/api/6c61e830b53c4bbe80f079d89ca6b129/bookingAppointData"
+    axios.post("https://crudcrud.com/api/73e27e549e5c4c4cb7e36ac6ad5df5d5/bookingAppointData"
     , userDetails)
         .then((response) => {
             console.log(response)
@@ -101,8 +99,7 @@ function handleFormSubmission(e) {
     var li = document.createElement('li');
     li.className = 'list-group-item';
 
-    // Set the userId as a data attribute
-    li.setAttribute('data-userId', userDetails.userId);
+
     // localStorage.setItem(email, JSON.stringify(userDetails));
     console.log('User details added to crud crud!!', userDetails);
 }
@@ -111,7 +108,7 @@ document.addEventListener('DOMContentLoaded', handlePageLoad);
 
 function handlePageLoad() {
     // Make a GET request to retrieve data
-    axios.get("https://crudcrud.com/api/6c61e830b53c4bbe80f079d89ca6b129/bookingAppointData")
+    axios.get("https://crudcrud.com/api/73e27e549e5c4c4cb7e36ac6ad5df5d5/bookingAppointData")
         .then((response) => {
             // Display the data on the screen and in the console
             showNewUserOnScreen(response.data);
@@ -122,64 +119,50 @@ function handlePageLoad() {
 }
 
 function showNewUserOnScreen(user) {
-    for (var i = 0; i < user.length; i++) {
-        var userId = user[i]._id
-        
-        var li = document.createElement('li');
-        li.className = 'list-group-item';
+    document.getElementById('email').value = ''; // Fixed typos in getElementById and set value
+    document.getElementById('item').value = ''; 
+    document.getElementById('description').value = ''// Fixed typo in getElementById and set value
+    document.getElementById('phone').value = ''; // Fixed typo in getElementById and set value
 
-        var space = ' ';
-        var bigSpace = ' - ';
-        li.appendChild(document.createTextNode(user[i].firstName));
-        li.appendChild(document.createTextNode(space));
-        li.appendChild(document.createTextNode(user[i].lastName));
-        li.appendChild(document.createTextNode(bigSpace));
-        li.appendChild(document.createTextNode(user[i].emailId));
-        li.appendChild(document.createTextNode(bigSpace));
-        li.appendChild(document.createTextNode(user[i].phone));
-        li.appendChild(document.createTextNode(space));
-
-        var deleteBtn = document.createElement('button');
-        deleteBtn.className = 'btn btn-danger btn-sm float-right delete';
-        deleteBtn.appendChild(document.createTextNode('X'));
-        // Add an event listener to the delete button
-        deleteBtn.addEventListener('click', function () {
-            // Send a network request to delete the user with user[i]._id
-            deleteUserFromServer(userId);
-        });
-        var editBtn = document.createElement('button'); // Create an edit button
-        editBtn.className = 'editbutton';
-        editBtn.appendChild(document.createTextNode('Edit'));
-
-        li.appendChild(deleteBtn);
-        li.appendChild(editBtn); // Append the edit button
-
-        itemList.appendChild(li);
-        // localStorage.setItem(email, JSON.stringify(userDetails));
-
-        console.log('User details retrieved from crud crud!!', user[i]);
+    // console.log(localStorage.getItem(user.emailId)); // Fixed getItem parameter
+    
+    if (localStorage.getItem(user.emailId) !== null) {
+        removeUserFromScreen(user.emailId);
     }
+    for (var i = 0; i < user.length; i++) {
+        const parentNode = document.getElementById('items'); // Fixed typo in getElementById
+        const childHTML = `<li class='list-group-item' id="${user[i]._id}">
+        FirstName: ${user[i].firstName} - LastName: ${user[i].lastName} - Email: ${user[i].emailId} - Phone: ${user[i].phone}
+        <button class= 'btn btn-danger btn-sm float-right delete' onclick="deleteUser('${user[i]._id}')">X</button>
+        <button class = 'editbutton'onclick="editUserDetails(${user[i]._id}', '${user[i].firstName}', '${user[i].lastName}', '${user[i].phone}','${user[i].emailId}')">Edit</button>
+    </li>`;  
+    parentNode.innerHTML = parentNode.innerHTML + childHTML;
+    }
+    
 }
 
-function deleteUserFromServer(userId) {
-    // Send an HTTP DELETE request to the server to delete the user with the specified ID.
-    // You can use the Fetch API or another HTTP library for this.
-    // Example using the Fetch API:
+function editUserDetails(userId, firstName, lastName, phone, emailId){
+    document.getElementById('email').value = emailId;
+    document.getElementById('item').value = firstName;
+    document.getElementById('description').value = lastName;
+    document.getElementById('phone').value = phone;
 
-    fetch(`https://crudcrud.com/api/6c61e830b53c4bbe80f079d89ca6b129/bookingAppointData/${userId}`, {
-        method: 'DELETE',
+    deleteUser(userId)
+}
+function deleteUser(userId){
+    axios.delete(`https://crudcrud.com/api/73e27e549e5c4c4cb7e36ac6ad5df5d5/bookingAppointData/${userId}`)
+    .then((response) => {
+        removeUserFromScreen(userId)
     })
-    .then(response => {
-        if (response.status === 200) {
-            // User deleted successfully
-            console.log('User deleted from the server.');
-        } else {
-            console.error('Failed to delete user from the server.');
-        }
-    })
-    .catch(error => {
-        console.error('Error while deleting user:', error);
-    });
+    .catch((err) => err)
+}
+
+function removeUserFromScreen(userId) {
+    const parentNode = document.getElementById('items');
+    const childNodeTobeDeleted = document.getElementById(userId);
+    if (childNodeTobeDeleted){
+        parentNode.removeChild(childNodeTobeDeleted)
+    }
 }
 
 
